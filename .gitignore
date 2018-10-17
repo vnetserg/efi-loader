@@ -6,3 +6,5 @@ Cargo.lock
 /bin
 /img/fat.img
 *.efi
+
+*.swp
