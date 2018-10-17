@@ -16,7 +16,7 @@ macro_rules! efi_main {
             }
             let table = SystemTable::new(st);
             let status = main(handle, table);
-            return status.to_c();
+            return efi::ctypes::EFI_STATUS::from(status);
         }
     )+);
 
