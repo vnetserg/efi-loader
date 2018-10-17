@@ -1,6 +1,6 @@
 EFIINC          = /usr/include/efi
 EFIINCS         = -I$(EFIINC) -I$(EFIINC)/x86_64 -I$(EFIINC)/protocol
-LIB             = /usr/lib64
+LIB             = /usr/lib
 EFI_CRT_OBJS    = $(LIB)/crt0-efi-x86_64.o
 EFI_LDS         = $(LIB)/elf_x86_64_efi.lds
 
