@@ -14,9 +14,7 @@ use core::panic::PanicInfo;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    unsafe {
-        ffi::Print(b"P\0A\0N\0I\0C\0!\0\n\0\0\0".as_ptr() as *const u16);
-    }
+    print!(b"PANIC!\n");
     loop {}
 }
 

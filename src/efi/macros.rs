@@ -32,8 +32,8 @@ macro_rules! print {
             __buf[$s.len()] = 0;
 
             unsafe {
-                efi::ffi::Print(__buf.as_ptr(), 
-                    $($x)*
+                ::efi::ffi::Print(__buf.as_ptr(), 
+                    $($x),*
                 );
             }
         }
