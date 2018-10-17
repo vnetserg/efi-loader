@@ -1,6 +1,8 @@
 #![no_std]
+#![feature(macro_literal_matcher)]
+#![feature(const_slice_len)]
 
-pub mod efi;
+mod efi;
 use efi::{ EfiStatus, EfiHandle, SystemTable };
 
 efi_main! {

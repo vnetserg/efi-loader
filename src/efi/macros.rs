@@ -14,7 +14,7 @@ macro_rules! efi_main {
             unsafe {
                 efi::ffi::InitializeLib(handle, st);
             }
-            let table = SystemTable::new(st);
+            let table = efi::SystemTable::new(st);
             let status = main(handle, table);
             return efi::ctypes::EFI_STATUS::from(status);
         }
@@ -23,9 +23,10 @@ macro_rules! efi_main {
 }
 
 macro_rules! print {
-    ( $s:expr $(, $x:expr )* ) => {
+    ( $s:literal $(, $x:expr )* ) => {
         {
-            let mut __buf: [u16; 2048] = unsafe { core::mem::uninitialized() };
+            let mut __buf: [u16; $s.len()+1]
+                = unsafe { core::mem::uninitialized() };
             for i in 0 .. $s.len() {
                 __buf[i] = $s[i] as u16;
             }
