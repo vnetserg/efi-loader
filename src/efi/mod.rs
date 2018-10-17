@@ -14,17 +14,9 @@ use core::panic::PanicInfo;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    print(b"PANIC!\n");
+    unsafe {
+        ffi::Print(b"P\0A\0N\0I\0C\0!\0\n\0\0\0".as_ptr() as *const u16);
+    }
     loop {}
 }
 
-pub fn print(s: &[u8]) {
-    let mut buf: [u16; 2048] = [0; 2048];
-    for i in 0 .. s.len() {
-        buf[i] = s[i] as u16;
-    }
-
-    unsafe {
-        ffi::Print(buf.as_ptr());
-    }
-}

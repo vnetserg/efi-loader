@@ -21,3 +21,21 @@ macro_rules! efi_main {
     )+);
 
 }
+
+macro_rules! print {
+    ( $s:expr $(, $x:expr )* ) => {
+        {
+            let mut __buf: [u16; 2048] = unsafe { core::mem::uninitialized() };
+            for i in 0 .. $s.len() {
+                __buf[i] = $s[i] as u16;
+            }
+            __buf[$s.len()] = 0;
+
+            unsafe {
+                efi::ffi::Print(__buf.as_ptr(), 
+                    $($x)*
+                );
+            }
+        }
+    };
+}
