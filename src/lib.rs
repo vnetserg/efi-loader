@@ -41,5 +41,5 @@ efi_main! {
 
 fn exit_boot_services(_handle: EfiHandle, _table: &SystemTable,
                       _memmap: &MemoryMap) -> EfiStatus {
-    EfiStatus::EfiSuccess
+    EfiStatus::Success
 }
