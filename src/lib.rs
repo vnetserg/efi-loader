@@ -1,15 +1,22 @@
 #![no_std]
-#![feature(macro_literal_matcher)]
+#![feature(try_trait)]
 #![feature(const_slice_len)]
+#![feature(macro_literal_matcher)]
 
 mod efi;
-use efi::{ EfiStatus, EfiHandle, SystemTable };
+use efi::{ EfiStatus, EfiHandle, MemoryMap, SystemTable };
+
+const KERNEL_IMAGE_PATH: &[u8] = b"\\EFI\\BOOT\\KERNEL.IMG";
 
 efi_main! {
     fn main(handle: EfiHandle, table: SystemTable) -> EfiStatus {
-        print!(b"Hello, world!\n");
-        print!(b"2 * 2 is %d + %d == %d\n", 1, 3, 4);
-        panic!();
+        print!(b"OS loader started\n");
+
+        // Get memory map
+        let memmap = MemoryMap::current(&table)?;
+        print!(b"Got memory map\n");
+
+        return EfiStatus::EfiSuccess;
     }
 }
 

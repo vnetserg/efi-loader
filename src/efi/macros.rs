@@ -10,13 +10,14 @@ macro_rules! efi_main {
         #[no_mangle]
         pub extern "stdcall" fn efi_main(handle: efi::ctypes::EFI_HANDLE,
                                          st: *const efi::ctypes::EFI_SYSTEM_TABLE)
-                -> efi::ctypes::EFI_STATUS {
+                -> ! {
             unsafe {
                 efi::ffi::InitializeLib(handle, st);
             }
             let table = efi::SystemTable::new(st);
             let status = main(handle, table);
-            return efi::ctypes::EFI_STATUS::from(status);
+            print!(b"Exit status: %r\n", status as efi::ctypes::EFI_STATUS);
+            loop {}
         }
     )+);
 
