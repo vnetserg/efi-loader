@@ -4,9 +4,11 @@
 #![feature(macro_literal_matcher)]
 
 mod efi;
+mod memory_map;
 mod kernel_handler;
 
-use efi::{ EfiStatus, EfiHandle, MemoryMap, MemoryQuery, SystemTable };
+use efi::{ EfiStatus, EfiHandle, SystemTable };
+use memory_map::{ MemoryMap, MemoryQuery };
 use kernel_handler::KernelHandler;
 
 const KERNEL_IMAGE_PATH: &[u8] = b"\\EFI\\BOOT\\KERNEL.IMG";
@@ -16,7 +18,7 @@ efi_main! {
         print!(b"UEFI OS loader started.\n");
 
         print!(b"Getting memory map... ");
-        let mut memmap = MemoryMap::current(&table)?;
+        let memmap = MemoryMap::current(&table)?;
         print!(b"done.\n");
 
         print!(b"Looking for free space... ");
@@ -31,15 +33,16 @@ efi_main! {
         print!(b"done.\n");
 
         print!(b"Exiting boot services... ");
-        exit_boot_services(handle, &table, &mut memmap);
+        let memmap = exit_boot_services(handle, &table, memmap)?;
         print!(b"done.\n");
 
         print!(b"Jumping into the kernel. Goodbye, UEFI!\n");
-        khandler.jump(sseg.start, &memmap); // never returns
+        khandler.jump(sseg.start, memmap); // never returns
     }
 }
 
 fn exit_boot_services(_handle: EfiHandle, _table: &SystemTable,
-                      _memmap: &MemoryMap) -> EfiStatus {
-    EfiStatus::Success
+                      memmap: MemoryMap)
+            -> Result<MemoryMap, EfiStatus> {
+    Ok(memmap)
 }

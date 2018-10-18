@@ -49,3 +49,15 @@ macro_rules! print {
         }
     };
 }
+
+macro_rules! attempt {
+    ( $exp:expr, $msg:literal ) => {
+        match $exp {
+            Ok(val) => Ok(val),
+            Err(val) => {
+                print!($msg);
+                Err(val)
+            }
+        }?
+    };
+}
