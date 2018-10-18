@@ -10,11 +10,16 @@ const KERNEL_IMAGE_PATH: &[u8] = b"\\EFI\\BOOT\\KERNEL.IMG";
 
 efi_main! {
     fn main(handle: EfiHandle, table: SystemTable) -> EfiStatus {
-        print!(b"OS loader started\n");
+        print!(b"OS loader started.\n");
 
-        // Get memory map
+        print!(b"Getting memory map... ");
         let memmap = MemoryMap::current(&table)?;
-        print!(b"Got memory map\n");
+        print!(b"done.\n");
+
+        print!(b"Looking for free space... ");
+        let kaddr = memmap.find(0, 4096)?; // kernel address
+        let saddr = memmap.find(1, 4096)?; // kernel stack address
+        print!(b" found.\n");
 
         return EfiStatus::EfiSuccess;
     }

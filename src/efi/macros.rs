@@ -16,28 +16,35 @@ macro_rules! efi_main {
             }
             let table = efi::SystemTable::new(st);
             let status = main(handle, table);
-            print!(b"Exit status: %r\n", status as efi::ctypes::EFI_STATUS);
+            print!(b"Loader exited. Status: %r.\n",
+                   status as efi::ctypes::EFI_STATUS);
             loop {}
         }
     )+);
 
 }
 
-macro_rules! print {
-    ( $s:literal $(, $x:expr )* ) => {
+macro_rules! wstr {
+    ( $s:literal ) => {
         {
-            let mut __buf: [u16; $s.len()+1]
+            let mut buf: [u16; $s.len()+1]
                 = unsafe { core::mem::uninitialized() };
             for i in 0 .. $s.len() {
-                __buf[i] = $s[i] as u16;
+                buf[i] = $s[i] as u16;
             }
-            __buf[$s.len()] = 0;
+            buf[$s.len()] = 0;
+            buf
+        }
+    }
+}
 
-            unsafe {
-                ::efi::ffi::Print(__buf.as_ptr(), 
-                    $($x),*
-                );
-            }
+macro_rules! print {
+    ( $s:literal $(, $x:expr )* ) => {
+        unsafe {
+            ::efi::ffi::Print(
+                wstr!($s).as_ptr(), 
+                $($x),*
+            );
         }
     };
 }
