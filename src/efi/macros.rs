@@ -40,9 +40,10 @@ macro_rules! wstr {
 
 macro_rules! print {
     ( $s:literal $(, $x:expr )* ) => {
+        let wstr = wstr!($s);
         unsafe {
             ::efi::ffi::Print(
-                wstr!($s).as_ptr(), 
+                wstr.as_ptr(),
                 $($x),*
             );
         }

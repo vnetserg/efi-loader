@@ -1,10 +1,10 @@
 use core::ops::Try;
-use core::convert::From;
 use super::ctypes::EFI_HANDLE;
 
 pub type EfiHandle = EFI_HANDLE;
 
 #[allow(overflowing_literals)]
+#[allow(dead_code)]
 pub enum EfiStatus {
     EfiSuccess = 0,
     EfiLoadError = 0x8000000000000001

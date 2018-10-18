@@ -9,7 +9,7 @@ pub mod memory_map;
 
 pub use self::types::*;
 pub use self::system_table::SystemTable;
-pub use self::memory_map::MemoryMap;
+pub use self::memory_map::{ MemoryMap, MemoryQuery };
 
 
 use core::panic::PanicInfo;
