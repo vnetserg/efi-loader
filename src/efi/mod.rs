@@ -1,17 +1,15 @@
 #![macro_use]
 
-pub mod ffi;
-pub mod types;
 pub mod ctypes;
+pub mod ffi;
 pub mod macros;
 pub mod system_table;
+pub mod types;
 
+pub use self::system_table::{BootServices, EfiMemoryDescriptorArray, SystemTable};
 pub use self::types::*;
-pub use self::system_table::{ SystemTable, BootServices,
-                              EfiMemoryDescriptorArray };
 
 pub const PGSIZE: usize = 4096; // memory page size in bytes
-
 
 use core::panic::PanicInfo;
 
@@ -20,4 +18,3 @@ fn panic(_info: &PanicInfo) -> ! {
     print!(b"PANIC!\n");
     loop {}
 }
-

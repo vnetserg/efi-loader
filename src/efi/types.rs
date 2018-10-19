@@ -1,5 +1,5 @@
-use core::ops::Try;
 use super::ctypes::EFI_HANDLE;
+use core::ops::Try;
 
 pub type EfiHandle = EFI_HANDLE;
 pub type MemoryPtr = usize;
@@ -8,7 +8,7 @@ pub type MemoryPtr = usize;
 #[allow(dead_code)]
 pub enum EfiStatus {
     Success = 0,
-    LoadError = 0x8000000000000001
+    LoadError = 0x8000000000000001,
 }
 
 impl Try for EfiStatus {
@@ -32,11 +32,9 @@ impl Try for EfiStatus {
     }
 }
 
-
 pub enum EfiAllocateType {
     AnyPages,
 }
-
 
 pub enum EfiMemoryType {
     LoaderData,

@@ -4,12 +4,12 @@
 #![feature(macro_literal_matcher)]
 
 mod efi;
-mod memory_map;
 mod kernel_handler;
+mod memory_map;
 
-use efi::{ EfiStatus, EfiHandle, SystemTable };
-use memory_map::{ MemoryMap, MemoryQuery };
+use efi::{EfiHandle, EfiStatus, SystemTable};
 use kernel_handler::KernelHandler;
+use memory_map::{MemoryMap, MemoryQuery};
 
 const KERNEL_IMAGE_PATH: &[u8] = b"\\EFI\\BOOT\\KERNEL.IMG";
 
@@ -41,8 +41,10 @@ efi_main! {
     }
 }
 
-fn exit_boot_services(_handle: EfiHandle, _table: &SystemTable,
-                      memmap: MemoryMap)
-            -> Result<MemoryMap, EfiStatus> {
+fn exit_boot_services(
+    _handle: EfiHandle,
+    _table: &SystemTable,
+    memmap: MemoryMap,
+) -> Result<MemoryMap, EfiStatus> {
     Ok(memmap)
 }

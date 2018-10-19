@@ -6,11 +6,12 @@ macro_rules! efi_main {
 
         fn main($handle: $htype, $table: $stype) -> $ret
             $body
-                
+
         #[no_mangle]
-        pub extern "stdcall" fn efi_main(handle: efi::ctypes::EFI_HANDLE,
-                                         st: *const efi::ctypes::EFI_SYSTEM_TABLE)
-                -> ! {
+        pub extern "stdcall" fn efi_main(
+            handle: efi::ctypes::EFI_HANDLE,
+            st: *const efi::ctypes::EFI_SYSTEM_TABLE
+        ) -> ! {
             unsafe {
                 efi::ffi::InitializeLib(handle, st);
             }
@@ -25,17 +26,14 @@ macro_rules! efi_main {
 }
 
 macro_rules! wstr {
-    ( $s:literal ) => {
-        {
-            let mut buf: [u16; $s.len()+1]
-                = unsafe { core::mem::uninitialized() };
-            for i in 0 .. $s.len() {
-                buf[i] = $s[i] as u16;
-            }
-            buf[$s.len()] = 0;
-            buf
+    ( $s:literal ) => {{
+        let mut buf: [u16; $s.len() + 1] = unsafe { core::mem::uninitialized() };
+        for i in 0..$s.len() {
+            buf[i] = $s[i] as u16;
         }
-    }
+        buf[$s.len()] = 0;
+        buf
+    }};
 }
 
 macro_rules! print {
