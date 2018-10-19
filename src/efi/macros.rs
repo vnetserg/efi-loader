@@ -15,7 +15,7 @@ macro_rules! efi_main {
             unsafe {
                 efi::ffi::InitializeLib(handle, st);
             }
-            let table = efi::SystemTable::new(st);
+            let table = unsafe { efi::SystemTable::claim(st) };
             let status = main(handle, table);
             print!(b"Loader exited. Status: %r.\n",
                    status as efi::ctypes::EFI_STATUS);
