@@ -71,7 +71,8 @@ impl BootServices {
             n_pages as UINTN,
             &mut addr as *mut EFI_PHYSICAL_ADDRESS,
         );
-        if c_status == 0 {
+        let status = EfiStatus::from(c_status);
+        if let EfiStatus::Success = status {
             return Ok(addr as MemoryPtr);
         }
         return Err(EfiStatus::LoadError);

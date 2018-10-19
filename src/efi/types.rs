@@ -1,4 +1,5 @@
-use super::ctypes::EFI_HANDLE;
+use super::ctypes::{EFI_HANDLE, EFI_STATUS};
+use core::convert::From;
 use core::ops::Try;
 
 pub type EfiHandle = EFI_HANDLE;
@@ -10,6 +11,16 @@ pub type MemoryPtr = usize;
 pub enum EfiStatus {
     Success = 0,
     LoadError = 0x8000000000000001,
+}
+
+impl From<EFI_STATUS> for EfiStatus {
+    fn from(status: EFI_STATUS) -> Self {
+        if status == 0 {
+            EfiStatus::Success
+        } else {
+            EfiStatus::LoadError
+        }
+    }
 }
 
 impl Try for EfiStatus {
