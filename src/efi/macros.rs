@@ -38,7 +38,6 @@ macro_rules! wstr {
 
 macro_rules! print {
     ( $s:literal $(, $x:expr )* ) => {
-
         #[allow(unused_unsafe)]
         {
             let wstr = wstr!($s);
@@ -54,12 +53,16 @@ macro_rules! print {
 
 macro_rules! attempt {
     ( $exp:expr, $msg:literal ) => {
-        match $exp {
-            Ok(val) => Ok(val),
-            Err(val) => {
-                print!($msg);
-                Err(val)
-            }
-        }?
+        #[allow(unused_imports)]
+        {
+            use core::ops::Try;
+            match $exp.into_result() {
+                Ok(val) => Ok(val),
+                Err(val) => {
+                    print!($msg);
+                    Err(val)
+                }
+            }?
+        }
     };
 }

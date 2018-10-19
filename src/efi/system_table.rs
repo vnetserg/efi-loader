@@ -53,7 +53,7 @@ pub struct BootServices {
     c_allocate_pages:
         extern "win64" fn(EFI_ALLOCATE_TYPE, EFI_MEMORY_TYPE, UINTN, *mut EFI_PHYSICAL_ADDRESS)
             -> EFI_STATUS,
-    c_free_pages: extern "win64" fn(),
+    c_free_pages: extern "win64" fn(EFI_PHYSICAL_ADDRESS, UINTN) -> EFI_STATUS,
     c_get_memory_map: extern "win64" fn(),
 }
 
@@ -78,6 +78,14 @@ impl BootServices {
         return Err(EfiStatus::LoadError);
     }
 
+    pub fn free_pages(&self, memptr: MemoryPtr, n_pages: usize) -> EfiStatus {
+        let c_status = (self.c_free_pages)(
+            memptr as EFI_PHYSICAL_ADDRESS,
+            n_pages as UINTN
+        );
+        return EfiStatus::from(c_status);
+    }
+
     pub fn get_memory_map(
         &self,
         _bufsize: &mut usize,
@@ -85,10 +93,6 @@ impl BootServices {
         _map_key: &mut usize,
     ) -> Result<EfiMemoryDescriptorArray, EfiStatus> {
         Err(EfiStatus::LoadError)
-    }
-
-    pub fn free_pages(&self, _memptr: MemoryPtr, _n_pages: usize) -> Result<(), EfiStatus> {
-        Ok(())
     }
 }
 

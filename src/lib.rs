@@ -1,6 +1,7 @@
 #![no_std]
 #![feature(try_trait)]
 #![feature(const_slice_len)]
+#![feature(stmt_expr_attributes)]
 #![feature(macro_literal_matcher)]
 
 mod efi;
