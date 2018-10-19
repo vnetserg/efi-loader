@@ -6,6 +6,7 @@ pub type MemoryPtr = usize;
 
 #[allow(overflowing_literals)]
 #[allow(dead_code)]
+#[repr(C)]
 pub enum EfiStatus {
     Success = 0,
     LoadError = 0x8000000000000001,
@@ -32,10 +33,19 @@ impl Try for EfiStatus {
     }
 }
 
+#[allow(dead_code)]
+#[repr(C)]
 pub enum EfiAllocateType {
     AnyPages,
+    MaxAddress,
+    Address,
+    Max,
 }
 
+#[allow(dead_code)]
+#[repr(C)]
 pub enum EfiMemoryType {
+    ReservedMemory,
+    LoaderCode,
     LoaderData,
 }

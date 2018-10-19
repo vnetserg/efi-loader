@@ -26,4 +26,8 @@ pub type EFI_EVENT = UINTN;
 pub type EFI_LBA = UINT64;
 pub type EFI_TPL = UINTN;
 
+pub type EFI_ALLOCATE_TYPE = i32;
+pub type EFI_MEMORY_TYPE = i32;
+pub type EFI_PHYSICAL_ADDRESS = usize;
+
 pub type EFI_SYSTEM_TABLE = VOID;

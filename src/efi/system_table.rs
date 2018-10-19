@@ -1,6 +1,10 @@
-use super::ctypes::EFI_SYSTEM_TABLE;
+use super::ctypes::*;
 use super::{EfiAllocateType, EfiHandle, EfiMemoryType, EfiStatus, MemoryPtr};
 
+const SYSTEM_TABLE_SIGNATURE: u64 = 0x5453595320494249;
+const BOOT_SERVICES_SIGNATURE: u64 = 0x56524553544f4f42;
+
+#[repr(C)]
 pub struct TableHeader {
     pub signature: u64,
     pub revision: u32,
@@ -9,15 +13,17 @@ pub struct TableHeader {
     pub reserved: u32,
 }
 
+#[repr(C)]
 pub struct SystemTable {
     pub header: TableHeader,
     pub firmware_vendor: *const u16,
+    pub firmware_revision: u32,
     pub console_in_handle: EfiHandle,
     pub con_in: &'static EfiSimpleTextInputProtocol,
     pub console_out_handle: EfiHandle,
     pub con_out: &'static EfiSimpleTextOutputProtocol,
     pub standard_error_handle: EfiHandle,
-    pub con_err: &'static EfiSimpleTextOutputProtocol,
+    pub std_err: &'static EfiSimpleTextOutputProtocol,
     pub runtime_services: &'static RuntimeServices,
     pub boot_services: &'static BootServices,
     pub number_of_table_entries: usize,
@@ -26,20 +32,49 @@ pub struct SystemTable {
 
 impl SystemTable {
     pub unsafe fn claim(ptr: *const EFI_SYSTEM_TABLE) -> &'static SystemTable {
-        core::mem::transmute::<*const EFI_SYSTEM_TABLE, &'static SystemTable>(ptr)
+        let table = core::mem::transmute::<*const EFI_SYSTEM_TABLE, &'static SystemTable>(ptr);
+        if table.header.signature != SYSTEM_TABLE_SIGNATURE {
+            print!(b"System table signature mismatch.\n");
+            panic!();
+        }
+        if table.boot_services.header.signature != BOOT_SERVICES_SIGNATURE {
+            print!(b"Boot services signature mismatch.\n");
+            panic!();
+        }
+        table
     }
 }
 
-pub struct BootServices {}
+#[allow(dead_code)]
+pub struct BootServices {
+    pub header: TableHeader,
+    c_raise_tpl: extern "win64" fn(),
+    c_restore_tpl: extern "win64" fn(),
+    c_allocate_pages:
+        extern "win64" fn(EFI_ALLOCATE_TYPE, EFI_MEMORY_TYPE, UINTN, *mut EFI_PHYSICAL_ADDRESS)
+            -> EFI_STATUS,
+    c_free_pages: extern "win64" fn(),
+    c_get_memory_map: extern "win64" fn(),
+}
 
 impl BootServices {
     pub fn allocate_pages(
         &self,
-        _alloc_type: EfiAllocateType,
-        _memory_type: EfiMemoryType,
-        _n_pages: usize,
+        alloc_type: EfiAllocateType,
+        memory_type: EfiMemoryType,
+        n_pages: usize,
     ) -> Result<MemoryPtr, EfiStatus> {
-        Ok(0)
+        let mut addr: EFI_PHYSICAL_ADDRESS = 0;
+        let c_status = (self.c_allocate_pages)(
+            alloc_type as EFI_ALLOCATE_TYPE,
+            memory_type as EFI_MEMORY_TYPE,
+            n_pages as UINTN,
+            &mut addr as *mut EFI_PHYSICAL_ADDRESS,
+        );
+        if c_status == 0 {
+            return Ok(addr as MemoryPtr);
+        }
+        return Err(EfiStatus::LoadError);
     }
 
     pub fn get_memory_map(

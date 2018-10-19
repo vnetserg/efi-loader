@@ -8,7 +8,7 @@ macro_rules! efi_main {
             $body
 
         #[no_mangle]
-        pub extern "stdcall" fn efi_main(
+        pub extern "C" fn efi_main(
             handle: efi::ctypes::EFI_HANDLE,
             st: *const efi::ctypes::EFI_SYSTEM_TABLE
         ) -> ! {
@@ -38,12 +38,16 @@ macro_rules! wstr {
 
 macro_rules! print {
     ( $s:literal $(, $x:expr )* ) => {
-        let wstr = wstr!($s);
-        unsafe {
-            ::efi::ffi::Print(
-                wstr.as_ptr(),
-                $($x),*
-            );
+
+        #[allow(unused_unsafe)]
+        {
+            let wstr = wstr!($s);
+            unsafe {
+                ::efi::ffi::Print(
+                    wstr.as_ptr(),
+                    $($x),*
+                );
+            }
         }
     };
 }
