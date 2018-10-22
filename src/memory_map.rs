@@ -1,11 +1,9 @@
-use efi::{
-    EfiAllocateType, EfiMemoryDescriptorArray, EfiMemoryType, EfiStatus, MemoryPtr, SystemTable,
-    PGSIZE,
-};
+use efi::{EfiMemoryDescriptor, EfiStatus, MemoryPtr, SystemTable};
+use gapvec::GapVec;
 
 pub struct MemoryMap {
-    pub descarr: EfiMemoryDescriptorArray,
-    pub map_key: usize,
+    pub key: usize,
+    desc: GapVec<EfiMemoryDescriptor>,
 }
 
 pub struct MemorySegment {
@@ -19,37 +17,25 @@ pub enum MemoryQuery {
 
 impl MemoryMap {
     pub fn current(table: &SystemTable) -> Result<MemoryMap, EfiStatus> {
-        let mut n_pages = 1;
-        loop {
-            let memptr = attempt!(
-                table.boot_services.allocate_pages(
-                    EfiAllocateType::AnyPages,
-                    EfiMemoryType::LoaderData,
-                    n_pages
-                ),
-                "failed to allocate pages."
-            );
-
-            let mut map_key = 0;
-            let mut bufsize = n_pages * PGSIZE;
-            let memmap_res = table
+        let mut byte_len = 0;
+        unsafe {
+            table
                 .boot_services
-                .get_memory_map(&mut bufsize, memptr, &mut map_key);
-
-            // Check if our buffer was big enough
-            if memmap_res.is_err() && bufsize > n_pages * PGSIZE {
-                attempt!(
-                    table.boot_services.free_pages(memptr, n_pages),
-                    "failed to free pages."
-                );
-                n_pages = (bufsize / PGSIZE) + 1;
-                continue;
-            }
-
-            let descarr = attempt!(memmap_res, "failed to get memory map.");
-
-            return Ok(MemoryMap { descarr, map_key });
+                .get_memory_map(&mut byte_len, 0 as MemoryPtr)
+                .expect_err("failed to get memory map length.");
         }
+
+        let mut desc = GapVec::<EfiMemoryDescriptor>::with_byte_len(byte_len);
+        let key = attempt!(
+            unsafe {
+                table
+                    .boot_services
+                    .get_memory_map(&mut byte_len, desc.as_ptr() as MemoryPtr)
+            },
+            "failed to get memory map."
+        );
+
+        Ok(MemoryMap { key, desc })
     }
 
     pub fn find_segment(&self, _query: MemoryQuery) -> Result<MemorySegment, EfiStatus> {

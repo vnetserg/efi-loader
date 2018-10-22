@@ -70,3 +70,6 @@ pub enum EfiMemoryType {
     LoaderCode,
     LoaderData,
 }
+
+#[repr(C)]
+pub struct EfiMemoryDescriptor {}

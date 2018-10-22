@@ -76,22 +76,19 @@ impl BootServices {
         return Err(EfiStatus::LoadError);
     }
 
-    pub fn free_pages(&self, memptr: MemoryPtr, n_pages: usize) -> EfiStatus {
+    pub unsafe fn free_pages(&self, memptr: MemoryPtr, n_pages: usize) -> EfiStatus {
         let c_status = (self.c_free_pages)(memptr as EFI_PHYSICAL_ADDRESS, n_pages as UINTN);
         return EfiStatus::from(c_status);
     }
 
-    pub fn get_memory_map(
+    pub unsafe fn get_memory_map(
         &self,
         _bufsize: &mut usize,
         _memptr: MemoryPtr,
-        _map_key: &mut usize,
-    ) -> Result<EfiMemoryDescriptorArray, EfiStatus> {
+    ) -> Result<usize, EfiStatus> {
         Err(EfiStatus::LoadError)
     }
 }
-
-pub struct EfiMemoryDescriptorArray {}
 
 pub struct RuntimeServices {}
 pub struct ConfigurationTable {}

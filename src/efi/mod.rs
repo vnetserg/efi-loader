@@ -10,7 +10,7 @@ pub mod types;
 
 pub use self::console::print;
 pub use self::heap::EfiHeap;
-pub use self::system_table::{BootServices, EfiMemoryDescriptorArray, SystemTable};
+pub use self::system_table::{BootServices, SystemTable};
 pub use self::types::*;
 
 use core::panic::PanicInfo;
