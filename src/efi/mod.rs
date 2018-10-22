@@ -1,13 +1,13 @@
 #![macro_use]
 
-pub mod alloc;
+pub mod heap;
 pub mod ctypes;
 pub mod ffi;
 pub mod macros;
 pub mod system_table;
 pub mod types;
 
-pub use self::alloc::EfiHeap;
+pub use self::heap::EfiHeap;
 pub use self::system_table::{BootServices, EfiMemoryDescriptorArray, SystemTable};
 pub use self::types::*;
 use alloc::prelude::ToString;

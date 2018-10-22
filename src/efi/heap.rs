@@ -1,26 +1,22 @@
 use super::{EfiAllocateType, EfiMemoryType, SystemTable, PGSIZE};
 use core::alloc::{GlobalAlloc, Layout};
-use core::cell::UnsafeCell;
 use core::ptr::NonNull;
 use linked_list_allocator::Heap;
+use spin::Mutex;
 
 #[alloc_error_handler]
 fn error_handler(_: core::alloc::Layout) -> ! {
-    panic!("allocator error.\n");
+    panic!("allocator error");
 }
 
 pub struct EfiHeap {
-    heap: UnsafeCell<Heap>,
+    heap: Mutex<Heap>,
 }
-
-// Swear to the compiler that we will never use heap
-// in multiple threads
-unsafe impl Sync for EfiHeap {}
 
 impl EfiHeap {
     pub const fn empty() -> EfiHeap {
         EfiHeap {
-            heap: UnsafeCell::new(Heap::empty()),
+            heap: Mutex::new(Heap::empty()),
         }
     }
 
@@ -35,13 +31,13 @@ impl EfiHeap {
             .unwrap_or_else(|_| {
                 panic!("failed to allocate heap pages.");
             });
-        (*self.heap.get()).init(addr, n_pages * PGSIZE);
+        self.heap.lock().init(addr, n_pages * PGSIZE);
     }
 }
 
 unsafe impl GlobalAlloc for EfiHeap {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        let res = match (*self.heap.get()).allocate_first_fit(layout) {
+        let res = match self.heap.lock().allocate_first_fit(layout) {
             Ok(allocation) => allocation.as_ptr(),
             Err(_) => 0 as *mut u8,
         };
@@ -49,6 +45,6 @@ unsafe impl GlobalAlloc for EfiHeap {
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-        (*self.heap.get()).deallocate(NonNull::new_unchecked(ptr), layout);
+        self.heap.lock().deallocate(NonNull::new_unchecked(ptr), layout);
     }
 }
