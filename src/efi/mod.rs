@@ -1,20 +1,27 @@
 #![macro_use]
 
+pub mod alloc;
 pub mod ctypes;
 pub mod ffi;
 pub mod macros;
 pub mod system_table;
 pub mod types;
 
+pub use self::alloc::EfiHeap;
 pub use self::system_table::{BootServices, EfiMemoryDescriptorArray, SystemTable};
 pub use self::types::*;
+use alloc::prelude::ToString;
+use core::panic::PanicInfo;
 
 pub const PGSIZE: usize = 4096; // memory page size in bytes
 
-use core::panic::PanicInfo;
-
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    print!(b"PANIC!\n");
+fn panic(info: &PanicInfo) -> ! {
+    if let Some(msg) = info.message() {
+        let text = msg.to_string();
+        print!(b"PANIC: %s\n", text.as_ptr());
+    } else {
+        print!(b"PANIC!\n");
+    }
     loop {}
 }

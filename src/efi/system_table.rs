@@ -79,10 +79,7 @@ impl BootServices {
     }
 
     pub fn free_pages(&self, memptr: MemoryPtr, n_pages: usize) -> EfiStatus {
-        let c_status = (self.c_free_pages)(
-            memptr as EFI_PHYSICAL_ADDRESS,
-            n_pages as UINTN
-        );
+        let c_status = (self.c_free_pages)(memptr as EFI_PHYSICAL_ADDRESS, n_pages as UINTN);
         return EfiStatus::from(c_status);
     }
 
