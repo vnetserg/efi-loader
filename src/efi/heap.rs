@@ -45,6 +45,8 @@ unsafe impl GlobalAlloc for EfiHeap {
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-        self.heap.lock().deallocate(NonNull::new_unchecked(ptr), layout);
+        self.heap
+            .lock()
+            .deallocate(NonNull::new_unchecked(ptr), layout);
     }
 }

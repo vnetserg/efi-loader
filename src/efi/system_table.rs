@@ -34,12 +34,10 @@ impl SystemTable {
     pub unsafe fn claim(ptr: *const EFI_SYSTEM_TABLE) -> &'static SystemTable {
         let table = core::mem::transmute::<*const EFI_SYSTEM_TABLE, &'static SystemTable>(ptr);
         if table.header.signature != SYSTEM_TABLE_SIGNATURE {
-            print!(b"System table signature mismatch.\n");
-            panic!();
+            panic!("System table signature mismatch.\n");
         }
         if table.boot_services.header.signature != BOOT_SERVICES_SIGNATURE {
-            print!(b"Boot services signature mismatch.\n");
-            panic!();
+            panic!("Boot services signature mismatch.\n");
         }
         table
     }

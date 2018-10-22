@@ -27,7 +27,7 @@ impl MemoryMap {
                     EfiMemoryType::LoaderData,
                     n_pages
                 ),
-                b"failed to allocate pages.\n"
+                "failed to allocate pages."
             );
 
             let mut map_key = 0;
@@ -40,13 +40,13 @@ impl MemoryMap {
             if memmap_res.is_err() && bufsize > n_pages * PGSIZE {
                 attempt!(
                     table.boot_services.free_pages(memptr, n_pages),
-                    b"failed to free pages.\n"
+                    "failed to free pages."
                 );
                 n_pages = (bufsize / PGSIZE) + 1;
                 continue;
             }
 
-            let descarr = attempt!(memmap_res, b"failed to get memory map.\n");
+            let descarr = attempt!(memmap_res, "failed to get memory map.");
 
             return Ok(MemoryMap { descarr, map_key });
         }

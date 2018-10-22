@@ -1,4 +1,5 @@
 #![no_std]
+#![feature(asm)]
 #![feature(alloc)]
 #![feature(allocator_api)]
 #![feature(alloc_error_handler)]
@@ -10,8 +11,8 @@
 #![feature(macro_literal_matcher)]
 
 extern crate alloc;
-extern crate spin;
 extern crate linked_list_allocator;
+extern crate spin;
 
 mod efi;
 mod kernel_handler;
@@ -40,34 +41,31 @@ pub extern "C" fn efi_main(
         ALLOCATOR.init(table, HEAP_PAGES);
     }
     let status = main(handle, table);
-    print!(
-        b"Loader exited. Status: %r.\n",
-        status as efi::ctypes::EFI_STATUS
-    );
-    loop {}
+    println!("Loader exited. Status: {}.", status);
+    halt!();
 }
 
 fn main(handle: EfiHandle, table: &SystemTable) -> EfiStatus {
-    print!(b"UEFI OS loader started.\n");
+    println!("UEFI OS loader started.");
 
-    print!(b"Getting memory map... ");
+    print!("Getting memory map... ");
     let memmap = MemoryMap::current(table)?;
-    print!(b"done.\n");
+    println!("done.");
 
-    print!(b"Looking for free space... ");
+    print!("Looking for free space... ");
     let kseg = memmap.find_segment(MemoryQuery::KthBiggest(0))?;
     let sseg = memmap.find_segment(MemoryQuery::KthBiggest(1))?;
-    print!(b"found.\n");
+    println!("found.");
 
-    print!(b"Loading kernel image... ");
+    print!("Loading kernel image... ");
     let khandler = KernelHandler::load_image(KERNEL_IMAGE_PATH, kseg.start, kseg.size)?;
-    print!(b"done.\n");
+    println!("done.");
 
-    print!(b"Exiting boot services... ");
+    print!("Exiting boot services... ");
     let memmap = exit_boot_services(handle, table, memmap)?;
-    print!(b"done.\n");
+    println!("done.");
 
-    print!(b"Jumping into the kernel. Goodbye, UEFI!\n");
+    println!("Jumping into the kernel. Goodbye, UEFI!");
     khandler.jump(sseg.start, table, memmap); // never returns
 }
 

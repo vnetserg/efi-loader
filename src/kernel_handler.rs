@@ -13,7 +13,7 @@ impl KernelHandler {
     }
 
     pub fn jump(self, _stack: MemoryPtr, _table: &SystemTable, _memmap: MemoryMap) -> ! {
-        print!(b"Hello from the Rust kernel!\n");
+        println!("Hello from the Rust kernel!");
         loop {}
     }
 }

@@ -1,29 +1,13 @@
 #![macro_use]
 
-macro_rules! wstr {
-    ( $s:literal ) => {{
-        let mut buf: [u16; $s.len() + 1] = unsafe { core::mem::uninitialized() };
-        for i in 0..$s.len() {
-            buf[i] = $s[i] as u16;
-        }
-        buf[$s.len()] = 0;
-        buf
-    }};
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::efi::print(format_args!($($arg)*)));
 }
 
-macro_rules! print {
-    ( $s:literal $(, $x:expr )* ) => {
-        #[allow(unused_unsafe)]
-        {
-            let wstr = wstr!($s);
-            unsafe {
-                ::efi::ffi::Print(
-                    wstr.as_ptr(),
-                    $($x),*
-                );
-            }
-        }
-    };
+macro_rules! println {
+    () => (print!("\n"));
+    ($fmt:expr) => (print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
 }
 
 macro_rules! attempt {
@@ -34,10 +18,16 @@ macro_rules! attempt {
             match $exp.into_result() {
                 Ok(val) => Ok(val),
                 Err(val) => {
-                    print!($msg);
+                    println!($msg);
                     Err(val)
                 }
             }?
         }
     };
+}
+
+macro_rules! halt {
+    () => (loop {
+        unsafe { asm!("hlt" :::: "volatile") }
+    });
 }

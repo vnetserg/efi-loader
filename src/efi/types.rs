@@ -1,5 +1,7 @@
 use super::ctypes::{EFI_HANDLE, EFI_STATUS};
 use core::convert::From;
+use core::fmt;
+use core::fmt::{Debug, Display};
 use core::ops::Try;
 
 pub type EfiHandle = EFI_HANDLE;
@@ -7,10 +9,18 @@ pub type MemoryPtr = usize;
 
 #[allow(overflowing_literals)]
 #[allow(dead_code)]
+#[derive(Debug)]
 #[repr(C)]
 pub enum EfiStatus {
     Success = 0,
     LoadError = 0x8000000000000001,
+}
+
+// Display is equivalent to Debug
+impl Display for EfiStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        Debug::fmt(self, f)
+    }
 }
 
 impl From<EFI_STATUS> for EfiStatus {
