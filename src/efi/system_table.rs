@@ -85,6 +85,7 @@ impl BootServices {
         &self,
         _bufsize: &mut usize,
         _memptr: MemoryPtr,
+        _desc_size: &mut usize,
     ) -> Result<usize, EfiStatus> {
         Err(EfiStatus::LoadError)
     }

@@ -55,7 +55,7 @@ impl Try for EfiStatus {
 }
 
 #[allow(dead_code)]
-#[repr(C)]
+#[repr(u32)]
 pub enum EfiAllocateType {
     AnyPages,
     MaxAddress,
@@ -64,12 +64,31 @@ pub enum EfiAllocateType {
 }
 
 #[allow(dead_code)]
-#[repr(C)]
+#[repr(u32)]
 pub enum EfiMemoryType {
     ReservedMemory,
     LoaderCode,
     LoaderData,
+    BootServicesCode,
+    BootServicesData,
+    RuntimeServicesCode,
+    RuntimeServicesData,
+    ConventionalMemory,
+    UnusableMemory,
+    ACPIReclaimMemory,
+    ACPIMemoryNVS,
+    MemoryMappedIO,
+    MemoryMappedIOPortSpace,
+    PalCode,
+    PersistentMemory,
+    MaxMemoryType,
 }
 
 #[repr(C)]
-pub struct EfiMemoryDescriptor {}
+pub struct EfiMemoryDescriptor {
+    tp: EfiMemoryType,
+    pstart: usize,
+    vstart: usize,
+    n_pages: u64,
+    attribute: u64,
+}

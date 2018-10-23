@@ -15,7 +15,7 @@ extern crate linked_list_allocator;
 extern crate spin;
 
 mod efi;
-mod gapvec;
+mod gap_array;
 mod kernel_handler;
 mod memory_map;
 
