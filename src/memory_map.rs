@@ -1,5 +1,5 @@
 use alloc::prelude::Vec;
-use efi::{EfiMemoryDescriptor, EfiStatus, MemoryPtr, SystemTable, PGSIZE};
+use efi::{EfiMemoryDescriptor, EfiMemoryType, EfiStatus, MemoryPtr, SystemTable, PGSIZE};
 use gap_array::GapArray;
 
 pub struct MemoryMap {
@@ -51,10 +51,12 @@ impl MemoryMap {
         let MemoryQuery::KthBiggest(k) = query;
         let mut top = Vec::with_capacity(k + 2);
         for desc in self.desc.iter() {
-            top.push(desc);
-            top.sort_unstable_by(|left, right| right.n_pages.cmp(&left.n_pages));
-            if top.len() > k + 1 {
-                top.truncate(k + 1);
+            if let EfiMemoryType::ConventionalMemory = desc.tp {
+                top.push(desc);
+                top.sort_by(|left, right| right.n_pages.cmp(&left.n_pages));
+                if top.len() > k + 1 {
+                    top.truncate(k + 1);
+                }
             }
         }
         if top.len() > k {

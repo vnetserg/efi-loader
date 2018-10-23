@@ -59,6 +59,16 @@ fn main(handle: EfiHandle, table: &SystemTable) -> EfiStatus {
     let kseg = memmap.find_segment(MemoryQuery::KthBiggest(0))?;
     let sseg = memmap.find_segment(MemoryQuery::KthBiggest(1))?;
     println!("found.");
+    println!(
+        "Kernel code & data area: 0x{:X} - 0x{:X}",
+        kseg.start,
+        kseg.start + kseg.size
+    );
+    println!(
+        "Kernel stack area: 0x{:X} - 0x{:X}",
+        sseg.start,
+        sseg.start + sseg.size
+    );
 
     print!("Loading kernel image... ");
     let khandler = KernelHandler::load_image(KERNEL_IMAGE_PATH, kseg.start, kseg.size)?;
