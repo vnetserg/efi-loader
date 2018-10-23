@@ -15,11 +15,13 @@ extern crate linked_list_allocator;
 extern crate spin;
 
 mod efi;
+mod efi_heap;
 mod gap_array;
 mod kernel_handler;
 mod memory_map;
 
-use efi::{EfiHandle, EfiHeap, EfiStatus, SystemTable};
+use efi::{EfiHandle, EfiStatus, SystemTable};
+use efi_heap::EfiHeap;
 use kernel_handler::KernelHandler;
 use memory_map::{MemoryMap, MemoryQuery};
 

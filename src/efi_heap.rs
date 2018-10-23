@@ -1,4 +1,4 @@
-use super::{EfiAllocateType, EfiMemoryType, SystemTable, PGSIZE};
+use super::efi::{EfiAllocateType, EfiMemoryType, SystemTable, PGSIZE};
 use core::alloc::{GlobalAlloc, Layout};
 use core::ptr::NonNull;
 use linked_list_allocator::Heap;

@@ -3,13 +3,11 @@
 pub mod console;
 pub mod ctypes;
 pub mod ffi;
-pub mod heap;
 pub mod macros;
 pub mod system_table;
 pub mod types;
 
 pub use self::console::print;
-pub use self::heap::EfiHeap;
 pub use self::system_table::{BootServices, SystemTable};
 pub use self::types::*;
 
