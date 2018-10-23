@@ -1,5 +1,5 @@
 use super::ctypes::*;
-use super::{EfiAllocateType, EfiHandle, EfiMemoryType, EfiStatus, MemoryPtr};
+use super::{EfiAllocateType, EfiHandle, EfiMemoryDescriptor, EfiMemoryType, EfiStatus, MemoryPtr};
 
 const SYSTEM_TABLE_SIGNATURE: u64 = 0x5453595320494249;
 const BOOT_SERVICES_SIGNATURE: u64 = 0x56524553544f4f42;
@@ -44,6 +44,7 @@ impl SystemTable {
 }
 
 #[allow(dead_code)]
+#[repr(C)]
 pub struct BootServices {
     pub header: TableHeader,
     c_raise_tpl: extern "win64" fn(),
@@ -52,7 +53,13 @@ pub struct BootServices {
         extern "win64" fn(EFI_ALLOCATE_TYPE, EFI_MEMORY_TYPE, UINTN, *mut EFI_PHYSICAL_ADDRESS)
             -> EFI_STATUS,
     c_free_pages: extern "win64" fn(EFI_PHYSICAL_ADDRESS, UINTN) -> EFI_STATUS,
-    c_get_memory_map: extern "win64" fn(),
+    c_get_memory_map: extern "win64" fn(
+        *mut UINTN,
+        *mut EfiMemoryDescriptor,
+        *mut UINTN,
+        *mut UINTN,
+        *mut UINT32,
+    ) -> EFI_STATUS,
 }
 
 impl BootServices {
@@ -73,7 +80,7 @@ impl BootServices {
         if let EfiStatus::Success = status {
             return Ok(addr as MemoryPtr);
         }
-        return Err(EfiStatus::LoadError);
+        return Err(status);
     }
 
     pub unsafe fn free_pages(&self, memptr: MemoryPtr, n_pages: usize) -> EfiStatus {
@@ -83,11 +90,24 @@ impl BootServices {
 
     pub unsafe fn get_memory_map(
         &self,
-        _bufsize: &mut usize,
-        _memptr: MemoryPtr,
-        _desc_size: &mut usize,
+        bufsize: &mut usize,
+        memptr: MemoryPtr,
+        desc_size: &mut usize,
     ) -> Result<usize, EfiStatus> {
-        Err(EfiStatus::LoadError)
+        let mut map_key = 0usize;
+        let mut desc_version = 0u32;
+        let c_status = (self.c_get_memory_map)(
+            bufsize as *mut UINTN,
+            memptr as *mut EfiMemoryDescriptor,
+            &mut map_key as *mut UINTN,
+            desc_size as *mut UINTN,
+            &mut desc_version as *mut UINT32,
+        );
+        let status = EfiStatus::from(c_status);
+        if let EfiStatus::Success = status {
+            return Ok(map_key);
+        }
+        return Err(status);
     }
 }
 
