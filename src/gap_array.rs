@@ -56,7 +56,7 @@ impl<T> Index<usize> for GapArray<T> {
         {
             panic!("index out of bounds");
         }
-        unsafe { transmute::<&u8, &T>(&self.data[index]) }
+        unsafe { transmute::<&u8, &T>(&self.data[start]) }
     }
 }
 

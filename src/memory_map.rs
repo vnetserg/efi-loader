@@ -59,7 +59,7 @@ impl MemoryMap {
         }
         if top.len() > k {
             Ok(MemorySegment {
-                start: top[k].vstart,
+                start: top[k].pstart,
                 size: (top[k].n_pages as usize) * PGSIZE,
             })
         } else {
