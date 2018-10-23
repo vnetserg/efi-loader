@@ -65,6 +65,7 @@ pub enum EfiAllocateType {
 
 #[allow(dead_code)]
 #[repr(u32)]
+#[derive(Debug)]
 pub enum EfiMemoryType {
     ReservedMemory,
     LoaderCode,
@@ -85,10 +86,11 @@ pub enum EfiMemoryType {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct EfiMemoryDescriptor {
-    tp: EfiMemoryType,
-    pstart: usize,
-    vstart: usize,
-    n_pages: u64,
-    attribute: u64,
+    pub tp: EfiMemoryType,
+    pub pstart: usize,
+    pub vstart: usize,
+    pub n_pages: u64,
+    pub attribute: u64,
 }

@@ -1,4 +1,5 @@
-use efi::{EfiMemoryDescriptor, EfiStatus, MemoryPtr, SystemTable};
+use alloc::prelude::Vec;
+use efi::{EfiMemoryDescriptor, EfiStatus, MemoryPtr, SystemTable, PGSIZE};
 use gap_array::GapArray;
 
 pub struct MemoryMap {
@@ -6,6 +7,7 @@ pub struct MemoryMap {
     desc: GapArray<EfiMemoryDescriptor>,
 }
 
+#[derive(Clone, Copy)]
 pub struct MemorySegment {
     pub start: MemoryPtr,
     pub size: usize,
@@ -45,7 +47,23 @@ impl MemoryMap {
         Ok(MemoryMap { key, desc })
     }
 
-    pub fn find_segment(&self, _query: MemoryQuery) -> Result<MemorySegment, EfiStatus> {
-        Ok(MemorySegment { start: 0, size: 0 })
+    pub fn find_segment(&self, query: MemoryQuery) -> Result<MemorySegment, EfiStatus> {
+        let MemoryQuery::KthBiggest(k) = query;
+        let mut top = Vec::with_capacity(k + 2);
+        for desc in self.desc.iter() {
+            top.push(desc);
+            top.sort_unstable_by(|left, right| right.n_pages.cmp(&left.n_pages));
+            if top.len() > k + 1 {
+                top.truncate(k + 1);
+            }
+        }
+        if top.len() > k {
+            Ok(MemorySegment {
+                start: top[k].vstart,
+                size: (top[k].n_pages as usize) * PGSIZE,
+            })
+        } else {
+            Err(EfiStatus::LoadError)
+        }
     }
 }

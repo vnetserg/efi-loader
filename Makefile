@@ -4,7 +4,8 @@ LIB             = /usr/lib
 EFI_CRT_OBJS    = $(LIB)/crt0-efi-x86_64.o
 EFI_LDS         = $(LIB)/elf_x86_64_efi.lds
 
-RUST_RELEASE 	= target/release
+RUST_TARGET		= release
+RUST_RELEASE 	= target/${RUST_TARGET}
 RUSTC_FLAGS		= -C no-redzone
 
 LDFLAGS         = -nostdlib -znocombreloc -T $(EFI_LDS) -shared \
@@ -28,7 +29,7 @@ clean:
 
 .PHONY: $(BUILD)/loader.a
 $(BUILD)/loader.a:
-	cargo rustc --release -- $(RUSTC_FLAGS)
+	cargo rustc --${RUST_TARGET} -- $(RUSTC_FLAGS)
 	cp $(RUST_RELEASE)/libefi_loader.a $@
 
 $(BUILD)/loader.so: $(BUILD)/loader.a
