@@ -62,6 +62,7 @@ pub struct BootServices {
     ) -> EFI_STATUS,
 }
 
+#[allow(dead_code)]
 impl BootServices {
     pub fn allocate_pages(
         &self,

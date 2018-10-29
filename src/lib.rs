@@ -71,7 +71,7 @@ fn main(handle: EfiHandle, table: &SystemTable) -> EfiStatus {
     );
 
     print!("Loading kernel image... ");
-    let khandler = KernelHandler::load_image(KERNEL_IMAGE_PATH, kseg.start, kseg.size)?;
+    let khandler = unsafe { KernelHandler::load_image(KERNEL_IMAGE_PATH, kseg.start, kseg.size)? };
     println!("done.");
 
     print!("Exiting boot services... ");

@@ -54,6 +54,8 @@ impl Try for EfiStatus {
     }
 }
 
+pub struct EfiFile {}
+
 #[allow(dead_code)]
 #[repr(u32)]
 pub enum EfiAllocateType {
